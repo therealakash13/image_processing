@@ -2,7 +2,17 @@ import { useState } from "react";
 import axios from "axios";
 
 function Form() {
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState(null);
+  const [processedImageUrl, setProcessedImageUrl] = useState(null);
+
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setPreviewImageUrl(URL.createObjectURL(file));
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -12,7 +22,7 @@ function Form() {
       return;
     }
 
-     const formData = new FormData();
+    const formData = new FormData();
     formData.append("image", image);
 
     try {
@@ -23,25 +33,26 @@ function Form() {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
-      console.log("Response:", response.data);
-      alert("Upload successful!");
-      setImage(null);
+      setProcessedImageUrl(response.data.downloadUrl);
+      alert(response.data.message);
+      // setImage("");
     } catch (error) {
       console.error("Error uploading:", error);
     }
   }
   return (
     <>
-      <form onSubmit={handleSubmit} enctype="multipart/form-data">
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input
           type="file"
           accept="image/*"
           name="imageFile"
-          onChange={(e) => setImage(e.target.files[0])}
+          onChange={handleFileChange}
         />
         <button type="submit">Convert...</button>
       </form>
+      <img src={previewImageUrl} alt="preview image" />
+      <img src={processedImageUrl} alt="processed image" />
     </>
   );
 }
