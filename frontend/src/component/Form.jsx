@@ -41,7 +41,7 @@ function Form() {
     }
   }
   return (
-    <>
+    <div className="image_form">
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input
           type="file"
@@ -49,11 +49,11 @@ function Form() {
           name="imageFile"
           onChange={handleFileChange}
         />
-        <button type="submit">Convert...</button>
+        <button className="btn-primary" type="submit">Convert...</button>
       </form>
       <img src={previewImageUrl} alt="preview image" />
       <img src={processedImageUrl} alt="processed image" />
-    </>
+    </div>
   );
 }
 export default Form;

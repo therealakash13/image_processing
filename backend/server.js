@@ -42,21 +42,10 @@ server.use("/converts", express.static(convertDir));
 server.get("/", (req, res) => {
   res.send("Hello... from image processor...");
 });
-server.post("/upload", upload.single("image"), async (req, res) => {
-  // req.body.file contains:
-  // {
-  //   fieldname: 'image',
-  //   originalname: 'new1.jpg',
-  //   encoding: '7bit',
-  //   mimetype: 'image/jpeg',
-  //   destination: 'uploads/',
-  //   filename: 'new1-1762760694645.jpg',
-  //   path: 'uploads\\new1-1762760694645.jpg',
-  //   size: 80252
-  // }
 
-  const inputPath = path.join(__dirname, req.file.path);
-  const outputPath = path.join(convertDir, req.file.filename);
+server.post("/upload", upload.single("image"), async (req, res) => {
+  const inputPath = path.join(__dirname, req.file.path); // absolute path of uploaded file
+  const outputPath = path.join(convertDir, req.file.filename); // absolute path of converted file
 
   try {
     const response = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
@@ -70,7 +59,7 @@ server.post("/upload", upload.single("image"), async (req, res) => {
       } catch (err) {
         console.error("Failed to delete file:", err.message);
       }
-    },5 * 60 * 1000);
+    },5 * 60 * 1000); // delete converted file after 5 mins
 
     return res.status(200).json({
       message: "Image processed successfully",
