@@ -63,6 +63,15 @@ server.post("/upload", upload.single("image"), async (req, res) => {
     if (!response) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
 
+    setTimeout(async () => {
+      try {
+        await fs.unlink(outputPath);
+        console.log(`Deleted file: ${outputPath}`);
+      } catch (err) {
+        console.error("Failed to delete file:", err.message);
+      }
+    },5 * 60 * 1000);
+
     return res.status(200).json({
       message: "Image processed successfully",
       downloadUrl: `http://localhost:3000/converts/${req.file.filename}`, // send static path of processed image
