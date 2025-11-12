@@ -147,7 +147,7 @@ textarea:focus {
   border-color: var(--color-accent);
 }
 
-select#unit {
+select {
   background-color: var(--color-primary);
   outline: none;
   border: 1px solid var(--color-secondary);
@@ -160,7 +160,7 @@ select#unit {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-select#unit:focus {
+select:focus {
   outline: none;
 }
 

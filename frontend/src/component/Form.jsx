@@ -5,6 +5,7 @@ function Form() {
   const [image, setImage] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
   const [processedImageUrl, setProcessedImageUrl] = useState(null);
+  const [operation, setOperation] = useState(null);
 
   function handleFileChange(e) {
     const file = e.target.files[0];
@@ -18,12 +19,17 @@ function Form() {
     e.preventDefault();
 
     if (!image) {
-      alert("Please select an image first");
+      alert("Please select an image");
+      return;
+    }
+    if (!operation) {
+      alert("Please select an operation");
       return;
     }
 
     const formData = new FormData();
     formData.append("image", image);
+    formData.append("operation", operation);
 
     try {
       const response = await axios.post(
@@ -37,6 +43,7 @@ function Form() {
       alert(response.data.message);
       // setImage("");
     } catch (error) {
+      alert(error.response.data.message + " : " + error.response.data.error);
       console.error("Error uploading:", error);
     }
   }
@@ -49,7 +56,21 @@ function Form() {
           name="imageFile"
           onChange={handleFileChange}
         />
-        <button className="btn-primary" type="submit">Convert...</button>
+        <select
+          value={operation}
+          onChange={(e) => setOperation(e.target.value)}
+          className="border border-gray-400 rounded-md px-3 py-2"
+          required
+        >
+          <option value="grayscale">Grayscale</option>
+          <option value="resize">Resize (800px width)</option>
+          <option value="rotate">Rotate (90°)</option>
+          <option value="blur">Blur</option>
+          <option value="sharpen">Sharpen</option>
+        </select>
+        <button className="btn-primary" type="submit">
+          Convert...
+        </button>
       </form>
       <img src={previewImageUrl} alt="preview image" />
       <img src={processedImageUrl} alt="processed image" />

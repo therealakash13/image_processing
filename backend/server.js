@@ -44,10 +44,16 @@ server.get("/", (req, res) => {
 });
 
 server.post("/upload", upload.single("image"), async (req, res) => {
+  const operation = req.body.operation;
+
   const inputPath = path.join(__dirname, req.file.path); // absolute path of uploaded file
   const outputPath = path.join(convertDir, req.file.filename); // absolute path of converted file
 
   try {
+    // Implement different operations
+
+    if (operation !== "grayscale") throw new Error("Unsupported operation.");
+
     const response = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
     if (!response) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
@@ -59,7 +65,7 @@ server.post("/upload", upload.single("image"), async (req, res) => {
       } catch (err) {
         console.error("Failed to delete file:", err.message);
       }
-    },5 * 60 * 1000); // delete converted file after 5 mins
+    }, 1 * 60 * 1000); // delete converted file after 1 mins
 
     return res.status(200).json({
       message: "Image processed successfully",
@@ -67,12 +73,10 @@ server.post("/upload", upload.single("image"), async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({
-        message: "Error processing file.",
-        error: error.message || null,
-      });
+    return res.status(500).json({
+      message: "Error processing file.",
+      error: error.message || null,
+    });
   }
 });
 
