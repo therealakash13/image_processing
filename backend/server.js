@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import cron from "node-cron";
-import { grayScale, rotateImage } from "./operations/operations.js";
+import { grayScale, rotateImage, blurImage } from "./operations/operations.js";
 
 const server = express();
 const port = 3000;
@@ -44,7 +44,7 @@ server.use("/converts", express.static(convertDir));
 cron.schedule("* * * * *", async () => {
   console.log("Cron job is running...");
   const currTime = Date.now(); // Current time of job
-  const delTime = 5 * 60 * 1000; // Deletion time for file
+  const delTime = 1 * 60 * 1000; // Deletion time for file
   const files = await fs.readdir(convertDir); // Read all files in 'converts' folder
 
   // for each file perform deletion task if file is older than 5 mins
@@ -80,6 +80,10 @@ server.post("/upload", upload.single("image"), async (req, res) => {
         break;
       case "rotate":
         await rotateImage(inputPath, outputPath, 90);
+        break;
+
+      case "blur":
+        blurImage(inputPath, outputPath, 5);
         break;
 
       default:

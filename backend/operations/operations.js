@@ -27,4 +27,17 @@ async function rotateImage(inputPath, outputPath, deg) {
   }
 }
 
-export { grayScale, rotateImage };
+async function blurImage(inputPath, outputPath, perc) {
+  try {
+    const res = await sharp(inputPath).blur(perc).toFile(outputPath);
+    if (!res) throw new Error("Error while processing image."); // error while processing
+    await fs.unlink(inputPath); // delete original if success
+
+    return res;
+  } catch (error) {
+    console.log("Blur error : ", { error });
+    throw error;
+  }
+}
+
+export { grayScale, rotateImage, blurImage };
