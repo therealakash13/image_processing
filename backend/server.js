@@ -77,7 +77,7 @@ server.post("/upload", upload.single("image"), async (req, res) => {
   const outputPath = path.join(convertDir, req.file.filename); // absolute path of converted file
 
   try {
-    // Implement different operations
+    // Implement slider for rotate, blur or sharpen and preview
 
     switch (operation) {
       case "grayscale":
