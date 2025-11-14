@@ -22,6 +22,7 @@ async function rotateImage(inputPath, outputPath, deg) {
 
     return res;
   } catch (error) {
+    console.log("Rotate error : ", { error });
     throw error;
   }
 }
