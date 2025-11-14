@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import cron from "node-cron";
-import { grayScale } from "./operations/operations.js";
+import { grayScale, rotateImage } from "./operations/operations.js";
 
 const server = express();
 const port = 3000;
@@ -78,14 +78,13 @@ server.post("/upload", upload.single("image"), async (req, res) => {
       case "grayscale":
         await grayScale(inputPath, outputPath);
         break;
-
+      case "rotate":
+        await rotateImage(inputPath, outputPath, 90);
+        break;
 
       default:
         throw new Error("Unsupported operation.");
     }
-    // const response = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
-    // if (!response) throw new Error("Error while processing image."); // error while processing
-    // await fs.unlink(inputPath); // delete original if success
 
     return res.status(200).json({
       message: "Image processed successfully",

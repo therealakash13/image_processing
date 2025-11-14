@@ -14,4 +14,16 @@ async function grayScale(inputPath, outputPath) {
   }
 }
 
-export { grayScale };
+async function rotateImage(inputPath, outputPath, deg) {
+  try {
+    const res = await sharp(inputPath).rotate(deg).toFile(outputPath);
+    if (!res) throw new Error("Error while processing image."); // error while processing
+    await fs.unlink(inputPath); // delete original if success
+
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export { grayScale, rotateImage };
