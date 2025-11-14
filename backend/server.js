@@ -5,7 +5,8 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
-import sharp from "sharp";
+import cron from "node-cron";
+import { grayScale } from "./operations/operations.js";
 
 const server = express();
 const port = 3000;
@@ -39,6 +40,27 @@ server.use(cors({ origin: "http://localhost:5173" })); // cors config
 server.use(bodyParser.urlencoded({ extended: true })); // body parsing
 server.use("/converts", express.static(convertDir));
 
+// task scheduler -- Keep each converted file for 5 mins, else delete them
+cron.schedule("* * * * *", async () => {
+  console.log("Cron job is running...");
+  const currTime = Date.now(); // Current time of job
+  const delTime = 5 * 60 * 1000; // Deletion time for file
+  const files = await fs.readdir(convertDir); // Read all files in 'converts' folder
+
+  // for each file perform deletion task if file is older than 5 mins
+  for (const file of files) {
+    const filePath = path.join(convertDir, file); // path resolver for current file
+    const stats = await fs.stat(filePath); // read stats of current file
+    const fileChangeTime = stats.mtimeMs; // getting modification time of current file
+
+    // Delete files older than 1 minute
+    if (currTime - fileChangeTime > delTime) {
+      await fs.unlink(filePath);
+      console.log("Deleted:", file);
+    }
+  }
+});
+
 server.get("/", (req, res) => {
   res.send("Hello... from image processor...");
 });
@@ -52,20 +74,18 @@ server.post("/upload", upload.single("image"), async (req, res) => {
   try {
     // Implement different operations
 
-    if (operation !== "grayscale") throw new Error("Unsupported operation.");
+    switch (operation) {
+      case "grayscale":
+        await grayScale(inputPath, outputPath);
+        break;
 
-    const response = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
-    if (!response) throw new Error("Error while processing image."); // error while processing
-    await fs.unlink(inputPath); // delete original if success
 
-    setTimeout(async () => {
-      try {
-        await fs.unlink(outputPath);
-        console.log(`Deleted file: ${outputPath}`);
-      } catch (err) {
-        console.error("Failed to delete file:", err.message);
-      }
-    }, 1 * 60 * 1000); // delete converted file after 1 mins
+      default:
+        throw new Error("Unsupported operation.");
+    }
+    // const response = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
+    // if (!response) throw new Error("Error while processing image."); // error while processing
+    // await fs.unlink(inputPath); // delete original if success
 
     return res.status(200).json({
       message: "Image processed successfully",
