@@ -40,4 +40,19 @@ async function blurImage(inputPath, outputPath, perc) {
   }
 }
 
-export { grayScale, rotateImage, blurImage };
+async function sharpenImage(inputPath, outputPath, sigma) {
+  try {
+    const res = await sharp(inputPath)
+      .sharpen({ sigma: sigma })
+      .toFile(outputPath);
+    if (!res) throw new Error("Error while processing image."); // error while processing
+    await fs.unlink(inputPath); // delete original if success
+
+    return res;
+  } catch (error) {
+    console.log("Sharpen error : ", { error });
+    throw error;
+  }
+}
+
+export { grayScale, rotateImage, blurImage, sharpenImage };

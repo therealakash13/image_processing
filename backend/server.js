@@ -6,7 +6,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import cron from "node-cron";
-import { grayScale, rotateImage, blurImage } from "./operations/operations.js";
+import {
+  grayScale,
+  rotateImage,
+  blurImage,
+  sharpenImage,
+} from "./operations/operations.js";
 
 const server = express();
 const port = 3000;
@@ -83,7 +88,11 @@ server.post("/upload", upload.single("image"), async (req, res) => {
         break;
 
       case "blur":
-        blurImage(inputPath, outputPath, 5);
+        await blurImage(inputPath, outputPath, 5);
+        break;
+
+      case "sharpen":
+        await sharpenImage(inputPath, outputPath, 2);
         break;
 
       default:
