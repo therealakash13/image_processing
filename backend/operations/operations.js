@@ -7,8 +7,6 @@ async function grayScale(inputPath) {
     if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
 
-    console.log({outputBuffer});
-
     return outputBuffer;
   } catch (error) {
     console.log("Grayscale error : ", { error });
@@ -16,41 +14,39 @@ async function grayScale(inputPath) {
   }
 }
 
-async function rotateImage(inputPath, outputPath, deg) {
+async function rotateImage(inputPath, deg) {
   try {
-    const res = await sharp(inputPath).rotate(deg).toFile(outputPath);
-    if (!res) throw new Error("Error while processing image."); // error while processing
+    const outputBuffer = await sharp(inputPath).rotate(deg).toBuffer();
+    if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
-
-    return res;
+    
+    return outputBuffer;
   } catch (error) {
     console.log("Rotate error : ", { error });
     throw error;
   }
 }
 
-async function blurImage(inputPath, outputPath, perc) {
+async function blurImage(inputPath, perc) {
   try {
-    const res = await sharp(inputPath).blur(perc).toFile(outputPath);
-    if (!res) throw new Error("Error while processing image."); // error while processing
+    const outputBuffer = await sharp(inputPath).blur(perc).toBuffer();
+    if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
 
-    return res;
+    return outputBuffer;
   } catch (error) {
     console.log("Blur error : ", { error });
     throw error;
   }
 }
 
-async function sharpenImage(inputPath, outputPath, sigma) {
+async function sharpenImage(inputPath, sigma) {
   try {
-    const res = await sharp(inputPath)
-      .sharpen({ sigma: sigma })
-      .toFile(outputPath);
-    if (!res) throw new Error("Error while processing image."); // error while processing
+    const outputBuffer = await sharp(inputPath).sharpen({ sigma: sigma }).toBuffer();
+    if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
 
-    return res;
+    return outputBuffer;
   } catch (error) {
     console.log("Sharpen error : ", { error });
     throw error;

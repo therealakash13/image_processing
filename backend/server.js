@@ -5,7 +5,6 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
-import cron from "node-cron";
 import {
   grayScale,
   rotateImage,
@@ -36,35 +35,11 @@ const __dirname = path.dirname(__filename); // absolute directory name
 
 // Ensure uploads and converts folder exists
 const uploadDir = path.join(__dirname, "uploads");
-const convertDir = path.join(__dirname, "converts");
 await fs.mkdir(uploadDir, { recursive: true });
-await fs.mkdir(convertDir, { recursive: true });
 
-server.use(express.json()); // Parsing json
+server.use(express.json()); // parsing json
 server.use(cors({ origin: "http://localhost:5173" })); // cors config
 server.use(bodyParser.urlencoded({ extended: true })); // body parsing
-server.use("/converts", express.static(convertDir));
-
-// task scheduler -- Keep each converted file for 5 mins, else delete them
-cron.schedule("* * * * *", async () => {
-  console.log("Cron job is running...");
-  const currTime = Date.now(); // Current time of job
-  const delTime = 1 * 60 * 1000; // Deletion time for file
-  const files = await fs.readdir(convertDir); // Read all files in 'converts' folder
-
-  // for each file perform deletion task if file is older than 5 mins
-  for (const file of files) {
-    const filePath = path.join(convertDir, file); // path resolver for current file
-    const stats = await fs.stat(filePath); // read stats of current file
-    const fileChangeTime = stats.mtimeMs; // getting modification time of current file
-
-    // Delete files older than 1 minute
-    if (currTime - fileChangeTime > delTime) {
-      await fs.unlink(filePath);
-      console.log("Deleted:", file);
-    }
-  }
-});
 
 server.get("/", (req, res) => {
   res.send("Hello... from image processor...");
@@ -72,9 +47,7 @@ server.get("/", (req, res) => {
 
 server.post("/upload", upload.single("image"), async (req, res) => {
   const operation = req.body.operation;
-
   const inputPath = path.join(__dirname, req.file.path); // absolute path of uploaded file
-  const outputPath = path.join(convertDir, req.file.filename); // absolute path of converted file
 
   try {
     // Implement slider for rotate, blur or sharpen and preview
@@ -85,15 +58,15 @@ server.post("/upload", upload.single("image"), async (req, res) => {
         bufferStream = await grayScale(inputPath);
         break;
       case "rotate":
-        await rotateImage(inputPath, outputPath, 90);
+        bufferStream = await rotateImage(inputPath, 90);
         break;
 
       case "blur":
-        await blurImage(inputPath, outputPath, 5);
+        bufferStream = await blurImage(inputPath, 5);
         break;
 
       case "sharpen":
-        await sharpenImage(inputPath, outputPath, 2);
+        bufferStream = await sharpenImage(inputPath, 2);
         break;
 
       default:
