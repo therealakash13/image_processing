@@ -37,10 +37,14 @@ function Form() {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
+          responseType: "arraybuffer",
         }
       );
-      setProcessedImageUrl(response.data.downloadUrl);
-      alert(response.data.message);
+
+      const blob = new Blob([response.data], { type: "image/png" });
+      const imageUrl = URL.createObjectURL(blob);
+
+      setProcessedImageUrl(imageUrl);
       // setImage("");
     } catch (error) {
       alert(error.response.data.message + " : " + error.response.data.error);

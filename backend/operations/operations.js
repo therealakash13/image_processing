@@ -1,13 +1,15 @@
 import sharp from "sharp";
 import fs from "fs/promises";
 
-async function grayScale(inputPath, outputPath) {
+async function grayScale(inputPath) {
   try {
-    const res = await sharp(inputPath).grayscale().toFile(outputPath); // image processing
-    if (!res) throw new Error("Error while processing image."); // error while processing
+    const outputBuffer = await sharp(inputPath).grayscale().toBuffer(); // image processing
+    if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
     await fs.unlink(inputPath); // delete original if success
 
-    return res;
+    console.log({outputBuffer});
+
+    return outputBuffer;
   } catch (error) {
     console.log("Grayscale error : ", { error });
     throw error;

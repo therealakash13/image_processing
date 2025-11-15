@@ -79,9 +79,10 @@ server.post("/upload", upload.single("image"), async (req, res) => {
   try {
     // Implement slider for rotate, blur or sharpen and preview
 
+    let bufferStream = "";
     switch (operation) {
       case "grayscale":
-        await grayScale(inputPath, outputPath);
+        bufferStream = await grayScale(inputPath);
         break;
       case "rotate":
         await rotateImage(inputPath, outputPath, 90);
@@ -99,11 +100,9 @@ server.post("/upload", upload.single("image"), async (req, res) => {
         throw new Error("Unsupported operation.");
     }
 
-    return res.status(200).json({
-      message: "Image processed successfully",
-      downloadUrl: `http://localhost:3000/converts/${req.file.filename}`, // send static path of processed image
-    });
+    return res.set("Content-Type", "image/png").status(200).send(bufferStream);
   } catch (error) {
+    // fix this frontend only expect array buffer even on error
     console.log(error);
     return res.status(500).json({
       message: "Error processing file.",
