@@ -75,12 +75,15 @@ server.post("/upload", upload.single("image"), async (req, res) => {
 
     return res.set("Content-Type", "image/png").status(200).send(bufferStream);
   } catch (error) {
-    // fix this frontend only expect array buffer even on error
     console.log(error);
-    return res.status(500).json({
+
+    const errorJson = JSON.stringify({
       message: "Error processing file.",
       error: error.message || null,
-    });
+    }); // stringifying json error response
+    const buffer = Buffer.from(errorJson, "utf-8"); // converting it to array buffer
+
+    return res.set("Content-Type", "application/json").status(500).send(buffer);
   }
 });
 

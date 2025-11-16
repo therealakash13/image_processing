@@ -46,9 +46,14 @@ function Form() {
 
       setProcessedImageUrl(imageUrl);
       // setImage("");
-    } catch (error) {
-      alert(error.response.data.message + " : " + error.response.data.error);
-      console.error("Error uploading:", error);
+    } catch (err) {
+      const decoder = new TextDecoder("utf-8"); // initializing new decoder
+      const errorText = decoder.decode(err.response.data); // decoding array buffer
+      const errorJson = JSON.parse(errorText); // parsing stringified json
+
+      const { error, message } = errorJson; // extracting error and message from json
+
+      alert(message + " : " + error);
     }
   }
   return (
