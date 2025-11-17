@@ -220,10 +220,28 @@ select:focus {
   transition: all 300ms ease-in-out;
 }
 
-.image_form form{
+.image_form {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
+}
+
+.section {
+  display: flex;
+  align-self: flex-start;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.section h2 {
+  margin-bottom: 0;
+  align-self: self-start;
+}
+
+.subsection {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
 }
