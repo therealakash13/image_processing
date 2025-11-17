@@ -25,25 +25,26 @@ server.post(
   async (req, res) => {
     const operation = req.query.op; // extracting operation from query parameter
     const inputBuffer = req.body; // extracting image buffer from request
+    const level = Number(req.query.level); // extracting intensity of blur, rotate and sharpness
+
+    console.log(level);
 
     try {
-      // Implement slider for rotate, blur or sharpen and preview
-
       let bufferStream = "";
       switch (operation) {
         case "grayscale":
           bufferStream = await grayScale(inputBuffer);
           break;
         case "rotate":
-          bufferStream = await rotateImage(inputBuffer, 90);
+          bufferStream = await rotateImage(inputBuffer, level);
           break;
 
         case "blur":
-          bufferStream = await blurImage(inputBuffer, 5);
+          bufferStream = await blurImage(inputBuffer, level);
           break;
 
         case "sharpen":
-          bufferStream = await sharpenImage(inputBuffer, 2);
+          bufferStream = await sharpenImage(inputBuffer, level);
           break;
 
         default:

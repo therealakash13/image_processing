@@ -5,7 +5,8 @@ function Form() {
   const [image, setImage] = useState(null);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
   const [processedImageUrl, setProcessedImageUrl] = useState(null);
-  const [operation, setOperation] = useState(null);
+  const [operation, setOperation] = useState("");
+  const [level, setLevel] = useState(0);
 
   function handleFileChange(e) {
     const file = e.target.files[0];
@@ -22,16 +23,20 @@ function Form() {
       alert("Please select an image");
       return;
     }
-    if (!operation) {
-      alert("Please select an operation");
-      return;
+    if (
+      ["grayscale", "resize", "rotate", "blur", "sharpen"].includes(operation)
+    ) {
+      if (level === "" || level === undefined || level === null) {
+        alert("Please select correct operation and level");
+        return;
+      }
     }
 
     const imageBuffer = await image.arrayBuffer(); // converting image file to buffer stream
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/upload?op=${operation}`,
+        `http://localhost:3000/upload?op=${operation}&level=${level}`,
         imageBuffer,
         {
           headers: { "Content-Type": "application/octet-stream" },
@@ -75,6 +80,40 @@ function Form() {
           <option value="blur">Blur</option>
           <option value="sharpen">Sharpen</option>
         </select>
+
+        {operation === "rotate" && (
+          <input
+            className="range"
+            type="range"
+            onChange={(e) => setLevel(e.target.value)}
+            min="0"
+            max="360"
+            step="90"
+          />
+        )}
+
+        {operation === "blur" && (
+          <input
+            className="range"
+            type="range"
+            onChange={(e) => setLevel(e.target.value)}
+            min="1"
+            max="10"
+            step="1"
+          />
+        )}
+
+        {operation === "sharpen" && (
+          <input
+            className="range"
+            type="range"
+            onChange={(e) => setLevel(e.target.value)}
+            min="1"
+            max="10"
+            step="1"
+          />
+        )}
+
         <button className="btn-primary" type="submit">
           Convert...
         </button>
