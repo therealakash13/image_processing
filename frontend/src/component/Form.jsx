@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Form() {
@@ -23,7 +23,7 @@ function Form() {
       return;
     }
 
-    const needLevel = ["rotate", "blur", "sharpen"].includes(operation); 
+    const needLevel = ["rotate", "blur", "sharpen"].includes(operation);
     // returns true if operations are one of them
 
     if ((needLevel && level === null) || level === "") {
@@ -76,6 +76,7 @@ function Form() {
         <h2>Choose an operation: </h2>
         <select
           value={operation}
+          defaultValue="grayscale"
           onChange={(e) => setOperation(e.target.value)}
           className="border border-gray-400 rounded-md px-3 py-2"
           required
@@ -100,6 +101,7 @@ function Form() {
         </div>
       )}
 
+      {/* fix preview of processed image not rendering on fresh image grayscale */}
       <div className="section">
         {["rotate", "blur", "sharpen"].includes(operation) && (
           <h2>Choose intensity: </h2>
