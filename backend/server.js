@@ -1,10 +1,6 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs/promises";
 import {
   grayScale,
   rotateImage,
@@ -15,28 +11,6 @@ import {
 const server = express();
 const port = 3000;
 
-// Multer config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // destination folder
-  },
-  filename: function (req, file, cb) {
-    const extensionName = path.extname(file.originalname); // extract extension name from file
-    const fileName = path.basename(file.originalname, extensionName); // extract basename
-    cb(null, `${fileName}-${Date.now()}${extensionName}`); // returning fullname appending current time in between
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// path resolving
-const __filename = fileURLToPath(import.meta.url); // absolute filename
-const __dirname = path.dirname(__filename); // absolute directory name
-
-// Ensure uploads and converts folder exists
-const uploadDir = path.join(__dirname, "uploads");
-await fs.mkdir(uploadDir, { recursive: true });
-
 server.use(express.json()); // parsing json
 server.use(cors({ origin: "http://localhost:5173" })); // cors config
 server.use(bodyParser.urlencoded({ extended: true })); // body parsing
@@ -45,46 +19,56 @@ server.get("/", (req, res) => {
   res.send("Hello... from image processor...");
 });
 
-server.post("/upload", upload.single("image"), async (req, res) => {
-  const operation = req.body.operation;
-  const inputPath = path.join(__dirname, req.file.path); // absolute path of uploaded file
+server.post(
+  "/upload",
+  express.raw({ type: "application/octet-stream", limit: "10mb" }),
+  async (req, res) => {
+    const operation = req.query.op; // extracting operation from query parameter
+    const inputBuffer = req.body; // extracting image buffer from request
 
-  try {
-    // Implement slider for rotate, blur or sharpen and preview
+    try {
+      // Implement slider for rotate, blur or sharpen and preview
 
-    let bufferStream = "";
-    switch (operation) {
-      case "grayscale":
-        bufferStream = await grayScale(inputPath);
-        break;
-      case "rotate":
-        bufferStream = await rotateImage(inputPath, 90);
-        break;
+      let bufferStream = "";
+      switch (operation) {
+        case "grayscale":
+          bufferStream = await grayScale(inputBuffer);
+          break;
+        case "rotate":
+          bufferStream = await rotateImage(inputBuffer, 90);
+          break;
 
-      case "blur":
-        bufferStream = await blurImage(inputPath, 5);
-        break;
+        case "blur":
+          bufferStream = await blurImage(inputBuffer, 5);
+          break;
 
-      case "sharpen":
-        bufferStream = await sharpenImage(inputPath, 2);
-        break;
+        case "sharpen":
+          bufferStream = await sharpenImage(inputBuffer, 2);
+          break;
 
-      default:
-        throw new Error("Unsupported operation.");
+        default:
+          throw new Error("Unsupported operation.");
+      }
+
+      return res
+        .set("Content-Type", "image/png")
+        .status(200)
+        .send(bufferStream);
+    } catch (error) {
+      console.log(error);
+
+      const errorJson = JSON.stringify({
+        message: "Error processing file.",
+        error: error.message || null,
+      }); // stringifying json error response
+      const buffer = Buffer.from(errorJson, "utf-8"); // converting it to array buffer
+
+      return res
+        .set("Content-Type", "application/json")
+        .status(500)
+        .send(buffer);
     }
-
-    return res.set("Content-Type", "image/png").status(200).send(bufferStream);
-  } catch (error) {
-    console.log(error);
-
-    const errorJson = JSON.stringify({
-      message: "Error processing file.",
-      error: error.message || null,
-    }); // stringifying json error response
-    const buffer = Buffer.from(errorJson, "utf-8"); // converting it to array buffer
-
-    return res.set("Content-Type", "application/json").status(500).send(buffer);
   }
-});
+);
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));

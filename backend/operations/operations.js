@@ -1,11 +1,10 @@
 import sharp from "sharp";
 import fs from "fs/promises";
 
-async function grayScale(inputPath) {
+async function grayScale(inputBuffer) {
   try {
-    const outputBuffer = await sharp(inputPath).grayscale().toBuffer(); // image processing
+    const outputBuffer = await sharp(inputBuffer).grayscale().toBuffer(); // image processing
     if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
-    await fs.unlink(inputPath); // delete original if success
 
     return outputBuffer;
   } catch (error) {
@@ -14,11 +13,10 @@ async function grayScale(inputPath) {
   }
 }
 
-async function rotateImage(inputPath, deg) {
+async function rotateImage(inputBuffer, deg) {
   try {
-    const outputBuffer = await sharp(inputPath).rotate(deg).toBuffer();
+    const outputBuffer = await sharp(inputBuffer).rotate(deg).toBuffer();
     if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
-    await fs.unlink(inputPath); // delete original if success
     
     return outputBuffer;
   } catch (error) {
@@ -27,11 +25,10 @@ async function rotateImage(inputPath, deg) {
   }
 }
 
-async function blurImage(inputPath, perc) {
+async function blurImage(inputBuffer, perc) {
   try {
-    const outputBuffer = await sharp(inputPath).blur(perc).toBuffer();
+    const outputBuffer = await sharp(inputBuffer).blur(perc).toBuffer();
     if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
-    await fs.unlink(inputPath); // delete original if success
 
     return outputBuffer;
   } catch (error) {
@@ -40,11 +37,10 @@ async function blurImage(inputPath, perc) {
   }
 }
 
-async function sharpenImage(inputPath, sigma) {
+async function sharpenImage(inputBuffer, sigma) {
   try {
-    const outputBuffer = await sharp(inputPath).sharpen({ sigma: sigma }).toBuffer();
+    const outputBuffer = await sharp(inputBuffer).sharpen({ sigma: sigma }).toBuffer();
     if (!outputBuffer) throw new Error("Error while processing image."); // error while processing
-    await fs.unlink(inputPath); // delete original if success
 
     return outputBuffer;
   } catch (error) {

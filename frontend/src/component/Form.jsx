@@ -27,16 +27,14 @@ function Form() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("operation", operation);
+    const imageBuffer = await image.arrayBuffer(); // converting image file to buffer stream
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/upload",
-        formData,
+        `http://localhost:3000/upload?op=${operation}`,
+        imageBuffer,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "application/octet-stream" },
           responseType: "arraybuffer",
         }
       );
