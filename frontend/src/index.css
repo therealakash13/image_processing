@@ -181,7 +181,6 @@ select:focus {
 }
 
 .btn-primary {
-  align-self: start;
   padding: var(--space-sm) var(--space-md);
   background-color: var(--color-secondary);
   color: var(--color-primary);
@@ -219,4 +218,12 @@ select:focus {
   align-items: center;
   gap: var(--space-lg);
   transition: all 300ms ease-in-out;
+}
+
+.image_form form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
 }
