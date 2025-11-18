@@ -1,13 +1,12 @@
-import Form from "./Form";
-import Hero from "./Hero";
+import Footer from "./Footer";
+import ImageProcessor from "./ImageProcessor";
 
 function App() {
   return (
     <div className="wrapper">
       <div className="container">
-
-      <Hero />
-      <Form />
+        <ImageProcessor />
+        <Footer />
       </div>
     </div>
   );
